@@ -2,11 +2,15 @@ const {
   createPet,
   getPetById,
   getPets,
+  create,
   updatePets,
   deletePet,
 } = require("./mascota.service");
 
 const { getUserById } = require("../users/user.controller");
+const { hashSync, genSaltSync, compareSync } = require("bcrypt");
+const { sign } = require("jsonwebtoken");
+
 
 module.exports = {
   createPet: (req, res) => {

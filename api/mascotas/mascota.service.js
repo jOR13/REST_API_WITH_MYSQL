@@ -6,10 +6,9 @@ let arrayImages = [];
 
 module.exports = {
   create: (data, callBack) => {
-    promisify(pool.query).bind(pool)(sql)
     pool.query(
-      `insert into mascotas (nombre, tipo, raza, direccion, descripcion contacto, user_id, image_id ) 
-                values(?,?,?,?,?,?,?)`,
+      `insert into db_mascotas.mascotas (nombre, tipo, raza, direccion, descripcion, contacto, users_id, image_id ) 
+                values(?,?,?,?,?,?,?,?)`,
       [
         data.nombre,
         data.tipo,
@@ -17,7 +16,7 @@ module.exports = {
         data.direccion,
         data.descripcion,
         data.contacto,
-        data.user_id,
+        data.users_id,
         data.image_id,
       ],
       (error, results, fields) => {
@@ -43,14 +42,12 @@ module.exports = {
 
   getPetById: (id, callBack) => {
     pool.query(
-      `SELECT id, nombre, tipo, raza, direccion, descripccion, contacto, users_id, image_id from mascotas where id = ?`,
+      `SELECT id, nombre, tipo, raza, direccion, descripcion, contacto, users_id, image_id from db_mascotas.mascotas where id = ?`,
       [id],
       (error, results, fields) => {
         if (error) {
           return callBack(error);
         }
-
-      
         pool.query(
           `select id, username, email, fullName, address, phone from users where id = ?`,
           [results[0].users_id],
@@ -58,12 +55,11 @@ module.exports = {
             if(error) {
               return callBack(error);
             }
-            pool.query(
-              `select * from images where id = ?`,
-              [results[0].image_id],
+            pool.query(`select id, name, ext, url, users_id from image where id = ?`,  [results[0].image_id],
               (error2, res1) => {
                 results[0].users_id = res;
                 results[0].image_id = res1;
+                console.log(res1)
                 return callBack(null, results[0]);
               }
             );
@@ -87,7 +83,7 @@ module.exports = {
   },
   updatePet: (data, callBack) => {
     pool.query(
-      `update mascotas set nombre=?, tipo=?, raza=?, direccion=?, descripcion=?,  contacto=?, user_id=?, image_id=? where id = ?`,
+      `update mascotas set nombre=?, tipo=?, raza=?, direccion=?, descripcion=?,  contacto=?, users_id=?, image_id=? where id = ?`,
       [
         data.nombre,
         data.tipo,
@@ -95,7 +91,7 @@ module.exports = {
         data.direccion,
         data.descripcion,
         data.contacto,
-        data.user_id,
+        data.users_id,
         data.image_id,
       ],
       (error, results, fields) => {
@@ -126,7 +122,7 @@ module.exports = {
 //     fnAsync(
 //       ()=>{
 //         pool.query(
-//           `SELECT id, nombre, tipo, raza, direccion, descripccion, contacto, users_id, image_id from mascotas where id = ?`,
+//           `SELECT id, nombre, tipo, raza, direccion, descripcion, contacto, users_id, image_id from mascotas where id = ?`,
 //           [1],
 //           (error, results, fields) => {
 

@@ -7,17 +7,17 @@ let fecha = datetime.toISOString().slice(0,19);
 module.exports = {
   create: (data, callBack) => {
     pool.query(
-      `insert into users(username, email, password, phone, address, fullName, createdAt, updatedAt ) 
-                values(?,?,?,?,?,?,?,?)`,
+      `insert into users(username, email, password, phone, address, fullName ) 
+                values(?,?,?,?,?,?)`,
       [
         data.username,
         data.email,
         data.password,
         data.phone,
         data.address,
-        data.fullName,
-        data.createdAt = fecha.replace("T", " "),
-        data.updatedAt = fecha.replace("T", " ")
+        data.fullName
+        // data.createdAt = fecha.replace("T", " "),
+        // data.updatedAt = fecha.replace("T", " ")
       ],
       (error, results, fields) => {
         if (error) {
