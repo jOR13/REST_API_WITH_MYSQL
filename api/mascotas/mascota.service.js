@@ -1,10 +1,12 @@
 const pool = require("../../config/database");
+const { promisify } = require('util');
 
 let arrayUsers = [];
 let arrayImages = [];
 
 module.exports = {
   create: (data, callBack) => {
+    promisify(pool.query).bind(pool)(sql)
     pool.query(
       `insert into mascotas (nombre, tipo, raza, direccion, descripcion contacto, user_id, image_id ) 
                 values(?,?,?,?,?,?,?)`,
@@ -45,37 +47,30 @@ module.exports = {
       [id],
       (error, results, fields) => {
         if (error) {
-          callBack(error);
+          return callBack(error);
         }
 
-        const subConsulta = async (id) => {
-          const rows = await pool.query(
-            `select id, username, email, fullName, address, phone from users where id = ${id}`
-          );
-          console.log(rows)
-          return rows;
-        };
+      
+        pool.query(
+          `select id, username, email, fullName, address, phone from users where id = ?`,
+          [results[0].users_id],
+          (error1, res) => {
+            if(error) {
+              return callBack(error);
+            }
+            pool.query(
+              `select * from images where id = ?`,
+              [results[0].image_id],
+              (error2, res1) => {
+                results[0].users_id = res;
+                results[0].image_id = res1;
+                return callBack(null, results[0]);
+              }
+            );
+          }
+        );
 
-        subConsulta(results[0].users_id ).then((result) => console.log(result));
-        // pool.query(
-        //   `select id, username, email, fullName, address, phone from users where id = ?`,
-        //   [results[0].users_id],
-        //   (error, res, fields) => {
-        //     arrayUsers = res;
-        //   }
-        // );
-        // pool.query(
-        //   `select * from images where id = ?`,
-        //   [results[0].image_id],
-        //   (error, res, fields) => {
-        //     arrayImages = res;
-        //   }
-        // );
 
-        results[0].users_id = arrayUsers;
-        results[0].image_id = arrayImages;
-
-        return callBack(null, results[0]);
       }
     );
   },
